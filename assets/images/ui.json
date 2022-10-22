@@ -1,0 +1,103 @@
+{
+	"textures": [
+		{
+			"image": "ui",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1924,
+				"h": 1941
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "background",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1080
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 1920,
+						"h": 1080
+					},
+					"frame": {
+						"x": 2,
+						"y": 2,
+						"w": 1920,
+						"h": 1080
+					}
+				},
+				{
+					"filename": "stack",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 628,
+						"h": 853
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 628,
+						"h": 853
+					},
+					"frame": {
+						"x": 2,
+						"y": 1086,
+						"w": 628,
+						"h": 853
+					}
+				},
+				{
+					"filename": "perfectScore",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 1020,
+						"h": 404
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 1020,
+						"h": 404
+					},
+					"frame": {
+						"x": 634,
+						"y": 1086,
+						"w": 1020,
+						"h": 404
+					}
+				},
+				{
+					"filename": "CERT",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 242,
+						"h": 241
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 242,
+						"h": 241
+					},
+					"frame": {
+						"x": 1658,
+						"y": 1086,
+						"w": 242,
+						"h": 241
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "http://free-tex-packer.com",
+		"version": "0.6.7"
+	}
+}
