@@ -3,14 +3,8 @@ var vars = {
     DEBUG: false,
     name: 'HanoiRebuilt',
 
-    version: 0.99,
+    version: 1.0,
 
-    BUGS: [
-        'Double clicking on a piece faster than the lift animation will leave the piece on the peg but still movable.\
-            To fix this I need to do checks on the lift and drop to see if an animation exists on the piece already\
-            If it does exist it must be removed and the vars for either the lift or drop set immediately before\
-            animating again. The reason this happens is due to the floating piece not being set up properly.'
-    ],
     TODO: [ ],
 
     fonts: {
@@ -22,17 +16,13 @@ var vars = {
             case 'PRELOAD': // PRELOADS
                 vars.files.loadAssets();
                 vars.localStorage.init();
-                break;
+            break;
             case 'CREATE': // CREATES
-                vars.anims.init();
                 vars.audio.init();
                 vars.containers.init();
-                vars.groups.init();
                 vars.input.init();
-                //vars.particles.init();
-                //vars.shaders.init();
                 vars.UI.init();
-                break;
+            break;
             case 'STARTAPP': // GAME IS READY TO PLAY
                 vars.game.init();
             break;
@@ -47,6 +37,7 @@ var vars = {
     files: {
         audio: {
             load: function() {
+                scene.load.audio('buttonClick',  'audio/buttonClick.ogg');
                 scene.load.audio('liftPiece',    'audio/lift.ogg');
                 scene.load.audio('dropPiece',    'audio/drop.ogg');
                 scene.load.audio('perfectScore', 'audio/perfectScore.ogg');
@@ -111,13 +102,6 @@ var vars = {
         }
     },
 
-    groups: {
-        init: function() {
-            scene.groups = { };
-            //scene.groups.groupName = scene.add.group().setName('groupName');
-        }
-    },
-
     localStorage: {
         pre: 'HRB',
         savedGames: { 3: { score: null, time: null}, 4: { score: null, time: null}, 5: { score: null, time: null}, 6: { score: null, time: null}, 7: { score: null, time: null}, 8: { score: null, time: null}, 9: { score: null, time: null} },
@@ -161,13 +145,6 @@ var vars = {
 
 
     // GAME/APP
-    anims: {
-        init: ()=> {
-            vars.DEBUG ? console.log(`FN: anims > init`) : null;
-            
-        }
-    },
-
     audio: {
         sparkler: null,
 
@@ -291,6 +268,7 @@ var vars = {
         clickOptions(_button) {
             let opt = vars.game.options;
             let changing;
+            vars.audio.playSound('buttonClick');
             switch (_button.name) {
                 case 'piecesDec':
                     opt.pieces--;

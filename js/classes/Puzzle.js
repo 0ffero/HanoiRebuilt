@@ -35,11 +35,11 @@ let Puzzle = class {
     }
 
     /* 
-      *****************************
-      *                           *
-      *   INIT FUNCTIONS BEGIN    *
-      *                           *
-      *****************************
+      ****************************
+      *                          *
+      *   INIT FUNCTIONS BEGIN   *
+      *                          *
+      ****************************
     */
     init() {
         let depths = consts.depths;
@@ -61,7 +61,7 @@ let Puzzle = class {
             if (!_show) { pS.setAlpha(0); return; };
 
             pS.setScale(5).setAlpha(0);
-            let duration = 2000;
+            let duration = 1500;
             scene.tweens.add({ targets: pS, duration: duration, alpha: 1, scale: 1, ease: 'Quad.easeIn' });
             return duration;
         };
@@ -198,6 +198,28 @@ let Puzzle = class {
             y-=h;
         };
     }
+    cleanUpPieces() {
+        let textures = game.textures.list;
+        for (let texture in textures) { texture.startsWith('piece_') && game.textures.remove(texture); };
+    }
+    createFireworks() {
+        let fA = this.fireWorks;
+        let depth = consts.depths.sparklers;
+        let pegOffset = { x: this.container.x, y: this.container.y };
+        this.pegXPositions.forEach( (c)=>{
+            let particle = scene.add.particles('flares').setName('particle_' + c).setDepth(depth)
+            particle.createEmitter({
+                frame: 'white',
+                active: true, x: c+pegOffset.x, y: 320,
+                speed: { min: 200, max: 400 },
+                angle: { min: 250, max: 290 },
+                scale: { start: 0.33, end: 0 },
+                blendMode: 'SCREEN', lifespan: 600, gravityY: 600
+            });
+            fA.push(particle);
+        });
+        this.fireworksDisable();
+    }
     generateNewStylePiece(_width,_height,_hsv) {
         _hsv.reverse();
         let graphics = scene.add.graphics();
@@ -223,29 +245,6 @@ let Puzzle = class {
         
         return graphics;
     }
-    cleanUpPieces() {
-        let textures = game.textures.list;
-        for (let texture in textures) { texture.startsWith('piece_') && game.textures.remove(texture); };
-    }
-
-    createFireworks() {
-        let fA = this.fireWorks;
-        let depth = consts.depths.sparklers;
-        let pegOffset = { x: this.container.x, y: this.container.y };
-        this.pegXPositions.forEach( (c)=>{
-            let particle = scene.add.particles('flares').setName('particle_' + c).setDepth(depth)
-            particle.createEmitter({
-                frame: 'white',
-                active: true, x: c+pegOffset.x, y: 320,
-                speed: { min: 200, max: 400 },
-                angle: { min: 250, max: 290 },
-                scale: { start: 0.33, end: 0 },
-                blendMode: 'SCREEN', lifespan: 600, gravityY: 600
-            });
-            fA.push(particle);
-        });
-        this.fireworksDisable();
-    }
     /* 
       **************************
       *                        *
@@ -263,11 +262,7 @@ let Puzzle = class {
         // movement feeling consistent, no matter the speed of the player
         let fP = this.floatingPiece;
         this.moveTweenX && this.moveTweenX.remove();
-        this.moveTweenX = scene.tweens.add({
-            targets: fP,
-            x: _moveToX,
-            duration: 100
-        })
+        this.moveTweenX = scene.tweens.add({ targets: fP, x: _moveToX, duration: 100 });
     }
     animatePieceYPosition(_moveToY=null) {
         if (!_moveToY) return `Invalid Y position ${_moveToY}`;
@@ -303,6 +298,8 @@ let Puzzle = class {
     }
 
     clickPeg(_pegID) {
+        if (!vars.input.enabled) return false;
+
         if (this.floatingPiece) { // theres a floating piece, test the drop position
             this.drop();
             return;
@@ -313,6 +310,8 @@ let Puzzle = class {
     }
 
     clickPiece(_piece) {
+        if (!vars.input.enabled) return false;
+
         if (!this.floatingPiece) {
             let piece = _piece;
             // get the peg that this piece is on
@@ -337,34 +336,37 @@ let Puzzle = class {
         let pegsA = this.pegsArray;
         let _pieceID = _piece.id;
         let _peg = _piece.overPeg-1;
+        let valid = false;
+        let y = null;
+        let lowY = this.lowY;
+
         if (!pegsA[_peg].length) { // peg is empty
+            valid = true;
+            y = lowY;
+        } else {
+            let pegs = pegsA[_peg];
+            let pLength = pegs.length;
+            if (_pieceID<pegs[pLength-1].id) {
+                valid = true;
+                let piece = pegs[pLength-1];
+                let tC = piece.getTopCenter();
+                y = tC.y;
+            };
+        };
+
+        if (valid) {
             vars.audio.playSound('dropPiece');
             pegsA[_peg].push(_piece);
             let move = [_piece.peg,_peg+1];
             _piece.peg = _peg+1;
-            this.animatePieceYPosition(this.lowY);
+            let waitTime = this.animatePieceYPosition(y);
             this.floatingPiece=null;
             this.updateMoves(move);
+            scene.tweens.addCounter({ from: 0, to: 1, duration: waitTime, onComplete: ()=> { vars.input.enabled = true; y!==lowY && vars.game.puzzle.checkForWin(); } });
             return true;
         };
-    
-        let pegs = pegsA[_peg];
-        let pLength = pegs.length;
-        if (_pieceID<pegs[pLength-1].id) {
-            vars.audio.playSound('dropPiece');
-            // get the top centre for this piece so we can place the new one on top of it
-            let _pieceID = pegs[pLength-1].id;
-            let tC = this.getPieceTopCentre(_pieceID);
-            pegsA[_peg].push(_piece); // push it onto the peg
-            let move = [_piece.peg,_peg+1];
-            _piece.peg = _peg+1;
-            let waitTime = this.animatePieceYPosition(tC.y); // and animate the actual piece
-            this.floatingPiece=null; // reset floatingPiece
-            this.updateMoves(move);
-            scene.tweens.addCounter({ from: 0, to: 1, duration: waitTime, onComplete: vars.game.puzzle.checkForWin })
-            return;
-        };
-    
+
+        return false;
     }
 
     enableInput(_enable=true) {
@@ -420,7 +422,8 @@ let Puzzle = class {
         this.floatingPiece = pegs.pop();
 
         vars.audio.playSound('liftPiece');
-        this.animatePieceYPosition(this.liftY);
+        let waitTime = this.animatePieceYPosition(this.liftY);
+        scene.tweens.addCounter({ from: 0, to: 1, duration: waitTime, onComplete: ()=> { vars.input.enabled=true; }});
 
         // is this the first move? if so, create a new timer
         if (!this.timer) { this.timer = new Timer(); };
@@ -492,6 +495,7 @@ let Puzzle = class {
         let delay = 0;
         if (Math.pow(2,n)-1===this.moveCount) {
             delay = vars.game.puzzle.perfectScore.show();
+            vars.audio.playSound('perfectScore');
         };
 
         scene.tweens.addCounter({
