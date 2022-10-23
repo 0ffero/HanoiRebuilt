@@ -1,17 +1,27 @@
 let Puzzle = class {
-    constructor(_pieces,_startPeg) {
+    constructor() {
         
         this.font = { ...vars.fonts.default };// take a copy of the font
+        let options = vars.game.options;
         
         // init pieces vars
-        this.piecesCount = clamp(_pieces||3,3,9);
+        this.piecesCount = clamp(options.pieces||3,3,9);
         this.pieces = [];
         this.floatingPiece = null;
 
         // init peg vars
         this.pegXPositions = [400,1000,1600];
-        this.startPeg = _startPeg||0;
+        this.startPeg = options.peg||0;
         this.startPeg===3 && (this.startPeg=getRandom(0,2));
+        
+        this.endPeg = null;
+        if (options.forceRandomEndPeg) {
+            let ePs = [];
+            for (let eP=0; eP<3; eP++) {
+                eP!==this.startPeg && ePs.push(eP);
+            };
+            this.endPeg = getRandom(ePs);
+        };
 
         // init move vars
         this.moveCount = 0;
@@ -82,16 +92,29 @@ let Puzzle = class {
         base.generateTexture('base',width,height);
         base.clear().destroy();
         let image = scene.add.image(0,0,'base').setOrigin(0);
-
         this.container.add(image);
 
+        // new game button
+        let newGame = scene.add.image(width-50,height/2,'ui','newGame').setOrigin(1,0.5).setInteractive();
+        newGame.on('pointerdown', ()=> {
+            vars.game.begin();
+        });
+        this.container.add(newGame);
+
         // add the amount of moves taken
-        this.movesCountText = scene.add.text(width/2,65,'MOVES TAKEN SO FAR: 0', this.font).setOrigin(0.5);
-        this.timerLabel = scene.add.text(width/2-210,135,'TIME TAKEN:', this.font).setOrigin(0,0.5);
-        this.timerText = scene.add.text(width/2+30,135,'0s', this.font).setOrigin(0, 0.5);
+        this.movesCountText = scene.add.text(width*0.05,65,'MOVES TAKEN SO FAR: 0', this.font).setOrigin(0,0.5);
+        this.timerLabel = scene.add.text(width*0.05,135,'TIME TAKEN:', this.font).setOrigin(0,0.5);
+        this.timerText = scene.add.text(width*0.175,135,'0s', this.font).setOrigin(0, 0.5);
 
+        // add the bests for this level
+        let bests = vars.game.best;
+        let bestScore = bests.scores[this.piecesCount];
+        let bestTime =bests.times[this.piecesCount];
+        let perfect = Math.pow(2,this.piecesCount)-1===bestScore ? ' (PERFECT)':'';
+        this.movesBest = scene.add.text(width*0.4,65,`FEWEST MOVES TAKEN: ${bestScore}${perfect}`, this.font).setOrigin(0,0.5);
+        this.timeBest = scene.add.text(width*0.4,135,`FASTEST TIME: ${bestTime}s`, this.font).setOrigin(0,0.5);
 
-        this.container.add([this.movesCountText, this.timerLabel, this.timerText]);
+        this.container.add([this.movesCountText, this.timerLabel, this.timerText, this.movesBest, this.timeBest]);
 
         this.container.setPosition(xPadding,consts.canvas.height-250);
         this.piecesContainer.y-=450-200;
@@ -109,21 +132,28 @@ let Puzzle = class {
 
         let interactive = [new Phaser.Geom.Rectangle(0-200, 0, width+400, height), Phaser.Geom.Rectangle.Contains];
 
-        this.pegColours = { line: { size: 1, colour: 0x333333}, fill: { colour: 0xCCCCCC } };
-        this.pegXPositions.forEach((_x,_i)=> {
-        
+        this.pegColours = { line: { size: 1, colour: 0x333333}, fill: { default: 0xCCCCCC, from: 0x006DD9, to: 0x26FF5C } };
+
+        // generate the 3 different pegs (keys = peg_default, peg_from and peg_to)
+        for (let pC in this.pegColours.fill) {
+            let colour = this.pegColours.fill[pC];
+            
             let peg = scene.add.graphics();
             peg.lineStyle(this.pegColours.line.size,this.pegColours.line.colour);
-            peg.fillStyle(this.pegColours.fill.colour);
+            peg.fillStyle(colour);
             peg.fillRoundedRect(0,0, width, height, 10);
             peg.strokeRoundedRect(0,0, width, height, 10);
 
-            let id = _i+1;
-            let name = `peg_${id}`;
+            let name = `peg_${pC}`;
             peg.generateTexture(name,width,height);
             peg.clear().destroy();
+        };
 
-            let image = scene.add.image(_x,20,name).setOrigin(0.5,1).setName(name).setInteractive(interactive[0],interactive[1]);
+        this.pegXPositions.forEach((_x,_i)=> {
+            let key = this.startPeg===_i ? 'peg_from' : this.endPeg!==null && _i==this.endPeg ? 'peg_to' : 'peg_default';
+            let id = _i+1;
+            let name = `peg_${id}`;
+            let image = scene.add.image(_x,20,key).setOrigin(0.5,1).setName(name).setInteractive(interactive[0],interactive[1]);
             image.id = id;
 
             this.container.add(image);
@@ -285,20 +315,28 @@ let Puzzle = class {
     }
 
     checkForWin() {
-        let puzzle = vars.game.puzzle;
-        let startPeg = puzzle.startPeg;
+        let startPeg = this.startPeg;
+        let endPeg = this.endPeg;
 
-        puzzle.pegsArray.forEach((_a,_i)=> {
-            if (_i===startPeg) return;
+        if (endPeg===null) {
+            this.pegsArray.forEach((_a,_i)=> {
+                if (_i===startPeg) return;
+                let win = _a.length===this.piecesCount ? true : false;
+                win && this.win();
+            });
+            return true;
+        };
 
-            let win = _a.length===puzzle.piecesCount ? true : false;
+        if (this.pegsArray[endPeg].length===this.piecesCount) {
+            this.win();
+            return true;
+        };
 
-            win && puzzle.win();
-        });
+        return false;
     }
 
     clickPeg(_pegID) {
-        if (!vars.input.enabled) return false;
+        vars.input.enabled = false;
 
         if (this.floatingPiece) { // theres a floating piece, test the drop position
             this.drop();
@@ -310,7 +348,7 @@ let Puzzle = class {
     }
 
     clickPiece(_piece) {
-        if (!vars.input.enabled) return false;
+        vars.input.enabled = false;
 
         if (!this.floatingPiece) {
             let piece = _piece;
@@ -366,6 +404,7 @@ let Puzzle = class {
             return true;
         };
 
+        vars.input.enabled=true;
         return false;
     }
 
@@ -416,7 +455,7 @@ let Puzzle = class {
     lift(_peg) {
         let pegsA = this.pegsArray;
         _peg--;
-        if (!pegsA[_peg] || !pegsA[_peg].length) return 'No pieces on this peg';
+        if (!pegsA[_peg] || !pegsA[_peg].length) { vars.input.enabled = true; return 'No pieces on this peg' };
     
         let pegs = pegsA[_peg];
         this.floatingPiece = pegs.pop();

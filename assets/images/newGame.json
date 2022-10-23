@@ -50,6 +50,48 @@
 						"w": 58,
 						"h": 62
 					}
+				},
+				{
+					"filename": "tickBox",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 80,
+						"h": 80
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 80,
+						"h": 80
+					},
+					"frame": {
+						"x": 2,
+						"y": 105,
+						"w": 80,
+						"h": 80
+					}
+				},
+				{
+					"filename": "tickIcon",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 45,
+						"h": 43
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 45,
+						"h": 43
+					},
+					"frame": {
+						"x": 85,
+						"y": 105,
+						"w": 45,
+						"h": 43
+					}
 				}
 			]
 		}

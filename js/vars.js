@@ -3,7 +3,7 @@ var vars = {
     DEBUG: false,
     name: 'HanoiRebuilt',
 
-    version: 1.0,
+    version: 1.1,
 
     TODO: [ ],
 
@@ -191,17 +191,16 @@ var vars = {
 
             return updated;
         },
-        options: { peg: 0, pieces: 3 },
+        options: { peg: 0, pieces: 3, forceRandomEndPeg: false },
 
         init: ()=> {
            vars.DEBUG ? console.log(`\nFN: game > init`) : null;
         },
 
         begin: ()=> {
-            let options = vars.game.options;
             let gV = vars.game;
             gV.puzzle && gV.puzzle.destroy();
-            gV.puzzle = new Puzzle(options.pieces, options.peg);
+            gV.puzzle = new Puzzle();
         }
     },
 
@@ -220,12 +219,14 @@ var vars = {
 
             // mouse scroll (zoom in / out)
             scene.input.on('wheel', function (pointer, gameObjects, deltaX, deltaY, deltaZ) {});
-
+            
             // phaser objects
-            scene.input.on('gameobjectdown', function (pointer, gameObject) {
+            scene.input.on('gameobjectup', function (pointer, gameObject) {
+                if (!vars.input.enabled) return false;
+
                 vars.input.click(gameObject);
             });
-
+            
             scene.input.on('gameobjectover', function (pointer, gameObject) {
                 let name = gameObject.name;
                 
@@ -242,15 +243,22 @@ var vars = {
                     return;
                 };
 
+                if (name==='tickBox') {
+                    vars.phaserObjects.forceEndPegInfo.setVisible(true);
+                };
+
             });
 
             scene.input.on('gameobjectout', function (pointer, gameObject) {
-                //let name = gameObject.name;
+                let name = gameObject.name;
+                if (name==='tickBox') {
+                    vars.phaserObjects.forceEndPegInfo.setVisible(false);
+                };
             });
         },
 
         click(_gameObject) {
-            if (!vars.input.enabled) return;
+            if (!vars.input.enabled) return false;
 
             let puzzle = vars.game.puzzle;
             let name = _gameObject.name;
@@ -354,7 +362,7 @@ var vars = {
 
             // the bg is interactive, so the player cant accidentally click behind it
             let bg = scene.add.image(cC.cX,cC.cY,'pixel15').setScale(cC.width, cC.height).setInteractive();
-            let stack = scene.add.image(cC.width*0.75,cC.cY,'ui','stack').setAlpha(0.2);
+            let stack = scene.add.image(cC.width*0.825,cC.cY,'ui','stack').setAlpha(0.2);
             container.add([bg,stack]);
 
             vars.UI.initWavyMessage('Welcome to Hanoi Rebuilt', cC.height*0.1);
@@ -363,7 +371,7 @@ var vars = {
 
             let options = vars.game.options;
             let y = cC.cY;
-            let x = cC.width*0.15;
+            let x = cC.width*0.05;
             
             /*
                ****************
@@ -373,7 +381,7 @@ var vars = {
             let piecesLabel = scene.add.text(x,y,'PIECES',font).setOrigin(0,0.5);
             let pieceCount = options.pieces;
 
-            x = cC.width*0.25;
+            x = cC.width*0.15;
             let piecesCount = vars.phaserObjects.piecesCount = scene.add.text(x,y,pieceCount,font).setOrigin(0.5).setColor('#4dff4d');
             piecesCount.pieces = pieceCount;
             let piecesDecrease = scene.add.image(x,y+100,texture,'arrowDown').setName('piecesDec').setInteractive();
@@ -393,12 +401,12 @@ var vars = {
                * PEG START *
                *************
             */
-            x = cC.width*0.35;
+            x = cC.width*0.25;
             let pegLabel = scene.add.text(x,y,'STARTING PEG',font).setOrigin(0,0.5);
             let pegInt = options.peg;
             let pText = pegInt===3 ? 'RANDOM' : pegInt+1;
 
-            x = cC.width*0.5;
+            x = cC.width*0.4;
             let pegNumber = vars.phaserObjects.pegNumber = scene.add.text(x,y,pText,font).setOrigin(0.5).setColor('#4dff4d');
             pegNumber.peg = pegInt;
             let pegPrev = scene.add.image(x,y+100,texture,'arrowDown').setName('pegPrev').setInteractive();
@@ -412,8 +420,34 @@ var vars = {
                 ***********
             */
 
+            /*
+                ***********************
+                * Force End Peg START *
+                ***********************
+            */
+            x = cC.width*0.475;
+            let forceEndPeg = scene.add.text(x,y,'RANDOM END PEG',font).setOrigin(0,0.5);
+            let originalString = `When this box is ticked the computer will select a random peg which you'll have to rebuilt the tower on.\nOnly when you've rebuilt the tower on that peg will you complete the puzzle.\n`;
+            let forceEndPegInfo = vars.phaserObjects.forceEndPegInfo = scene.add.text(cC.cX,cC.height*0.7,originalString + `Currently, the computer will ${!options.forceRandomEndPeg ? 'not ': ''}be setting the rebuild peg.`,font).setOrigin(0.5).setVisible(false);
+            forceEndPegInfo.originalString = originalString;
+            x = cC.width*0.65;
+            let tickBox = scene.add.image(x,y,texture,'tickBox').setName(`tickBox`).setInteractive();
+            let tickIcon = scene.add.image(x,y,texture,'tickIcon').setVisible(options.forceRandomEndPeg);
+            tickBox.on('pointerdown', ()=> {
+                vars.audio.playSound('buttonClick');
+                options.forceRandomEndPeg=!options.forceRandomEndPeg;
+                tickIcon.setVisible(options.forceRandomEndPeg);
+                forceEndPegInfo.setText(forceEndPegInfo.originalString + `Currently, the computer will ${!options.forceRandomEndPeg ? 'not ': ''}be setting the rebuild peg.`);
+            });
+            container.add([forceEndPeg,tickBox,tickIcon,forceEndPegInfo]);
+            /*
+                **********************
+                * Force End Peg  END *
+                **********************
+            */
+
             // START BUTTON
-            x = cC.width * 0.75;
+            x = cC.width * 0.825;
             let startButton = scene.add.image(x,y,texture,'startButton').setName('start').setInteractive();
             startButton.on('pointerdown', ()=> { vars.input.clickOptions(startButton); });
             container.add(startButton);
