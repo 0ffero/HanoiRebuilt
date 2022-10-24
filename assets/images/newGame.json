@@ -4,7 +4,7 @@
 			"image": "newGame",
 			"format": "RGBA8888",
 			"size": {
-				"w": 416,
+				"w": 549,
 				"h": 104
 			},
 			"scale": 1,
@@ -31,27 +31,6 @@
 					}
 				},
 				{
-					"filename": "arrowDown",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 58,
-						"h": 62
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 58,
-						"h": 62
-					},
-					"frame": {
-						"x": 356,
-						"y": 2,
-						"w": 58,
-						"h": 62
-					}
-				},
-				{
 					"filename": "tickBox",
 					"rotated": false,
 					"trimmed": false,
@@ -66,10 +45,31 @@
 						"h": 80
 					},
 					"frame": {
-						"x": 2,
-						"y": 105,
+						"x": 356,
+						"y": 2,
 						"w": 80,
 						"h": 80
+					}
+				},
+				{
+					"filename": "arrowDown",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 58,
+						"h": 62
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 58,
+						"h": 62
+					},
+					"frame": {
+						"x": 440,
+						"y": 2,
+						"w": 58,
+						"h": 62
 					}
 				},
 				{
@@ -87,8 +87,8 @@
 						"h": 43
 					},
 					"frame": {
-						"x": 85,
-						"y": 105,
+						"x": 502,
+						"y": 2,
 						"w": 45,
 						"h": 43
 					}

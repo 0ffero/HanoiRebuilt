@@ -3,7 +3,7 @@ var vars = {
     DEBUG: false,
     name: 'HanoiRebuilt',
 
-    version: 1.1,
+    version: 1.11,
 
     TODO: [ ],
 
@@ -191,7 +191,8 @@ var vars = {
 
             return updated;
         },
-        options: { peg: 0, pieces: 3, forceRandomEndPeg: false },
+        
+        options: { colourfulPieces: true, peg: 0, pieces: 3, forceRandomEndPeg: false },
 
         init: ()=> {
            vars.DEBUG ? console.log(`\nFN: game > init`) : null;
@@ -245,6 +246,12 @@ var vars = {
 
                 if (name==='tickBox') {
                     vars.phaserObjects.forceEndPegInfo.setVisible(true);
+                    return;
+                };
+
+                if (name==='tickCBox') {
+                    vars.phaserObjects.useColourful.setVisible(true);
+                    return;
                 };
 
             });
@@ -253,6 +260,11 @@ var vars = {
                 let name = gameObject.name;
                 if (name==='tickBox') {
                     vars.phaserObjects.forceEndPegInfo.setVisible(false);
+                    return;
+                };
+                if (name==='tickCBox') {
+                    vars.phaserObjects.useColourful.setVisible(false);
+                    return;
                 };
             });
         },
@@ -358,6 +370,7 @@ var vars = {
             container.tween = null;
 
             let font = { ...vars.fonts.default, ...{ fontSize: '42px'} };
+            let lineSpacing = 10;
             let texture = 'newGame';
 
             // the bg is interactive, so the player cant accidentally click behind it
@@ -370,23 +383,22 @@ var vars = {
 
 
             let options = vars.game.options;
-            let y = cC.cY;
-            let x = cC.width*0.05;
+            let y = cC.height*0.35;
+            let x = cC.width*0.225;
             
             /*
                ****************
                * PIECES START *
                ****************
             */
-            let piecesLabel = scene.add.text(x,y,'PIECES',font).setOrigin(0,0.5);
+            let piecesLabel = scene.add.text(x,y-125,'PIECES',font).setOrigin(0.5);
             let pieceCount = options.pieces;
 
-            x = cC.width*0.15;
             let piecesCount = vars.phaserObjects.piecesCount = scene.add.text(x,y,pieceCount,font).setOrigin(0.5).setColor('#4dff4d');
             piecesCount.pieces = pieceCount;
-            let piecesDecrease = scene.add.image(x,y+100,texture,'arrowDown').setName('piecesDec').setInteractive();
+            let piecesDecrease = scene.add.image(x-150,y,texture,'arrowDown').setAngle(90).setName('piecesDec').setInteractive();
             piecesDecrease.on('pointerdown', ()=> { vars.input.clickOptions(piecesDecrease); });
-            let piecesIncrease = scene.add.image(x,y-100,texture,'arrowDown').setAngle(180).setName('piecesInc').setInteractive();
+            let piecesIncrease = scene.add.image(x+150,y,texture,'arrowDown').setAngle(270).setName('piecesInc').setInteractive();
             piecesIncrease.on('pointerdown', ()=> { vars.input.clickOptions(piecesIncrease); });
             container.add([piecesLabel,piecesCount,piecesIncrease,piecesDecrease]);
             /*
@@ -395,23 +407,49 @@ var vars = {
                **************
             */
 
+            /*
+                **************************
+                * Simple Colouring START *
+                **************************
+            */
+            x = cC.width*0.475;
+            let useColourful = scene.add.text(x,y-125,'COLOURFUL PIECES',font).setOrigin(0.5);
+            let originalCString = `When this box is ticked, the pieces will be multi-coloured\nOtherwise they'll use a single colour that's darker at the base and brighter at the top.\n`;
+            let useColourfulInfo = vars.phaserObjects.useColourful = scene.add.text(cC.cX,cC.height*0.75,originalCString + `Currently, colourful pieces are ${options.colourfulPieces ? 'ON': 'OFF'}.`,font).setLineSpacing(lineSpacing).setColor('#666666').setOrigin(0.5).setVisible(false);
+            useColourfulInfo.originalCString = originalCString;
+            let tickCBox = scene.add.image(x,y,texture,'tickBox').setName(`tickCBox`).setInteractive();
+            let tickCIcon = scene.add.image(x,y,texture,'tickIcon').setVisible(options.colourfulPieces);
+            tickCBox.on('pointerdown', ()=> {
+                vars.audio.playSound('buttonClick');
+                options.colourfulPieces=!options.colourfulPieces;
+                vars.localStorage.saveOptions();
+                tickCIcon.setVisible(options.colourfulPieces);
+                useColourfulInfo.setText(useColourfulInfo.originalCString + `Currently, colourful pieces are ${options.colourfulPieces ? 'ON': 'OFF'}.`);
+            });
+            container.add([useColourful,tickCBox,tickCIcon,useColourfulInfo]);
+            /*
+                ************************
+                * Simple Colouring END *
+                ************************
+            */
+
 
             /*
                *************
                * PEG START *
                *************
             */
-            x = cC.width*0.25;
-            let pegLabel = scene.add.text(x,y,'STARTING PEG',font).setOrigin(0,0.5);
+            x = cC.width*0.225;
+            y = cC.height*0.625;
+            let pegLabel = scene.add.text(x,y-125,'STARTING PEG',font).setOrigin(0.5);
             let pegInt = options.peg;
             let pText = pegInt===3 ? 'RANDOM' : pegInt+1;
 
-            x = cC.width*0.4;
             let pegNumber = vars.phaserObjects.pegNumber = scene.add.text(x,y,pText,font).setOrigin(0.5).setColor('#4dff4d');
             pegNumber.peg = pegInt;
-            let pegPrev = scene.add.image(x,y+100,texture,'arrowDown').setName('pegPrev').setInteractive();
+            let pegPrev = scene.add.image(x-150,y,texture,'arrowDown').setAngle(90).setName('pegPrev').setInteractive();
             pegPrev.on('pointerdown', ()=> { vars.input.clickOptions(pegPrev); });
-            let pegNext = scene.add.image(x,y-100,texture,'arrowDown').setAngle(180).setName('pegNext').setInteractive();
+            let pegNext = scene.add.image(x+150,y,texture,'arrowDown').setAngle(270).setName('pegNext').setInteractive();
             pegNext.on('pointerdown', ()=> { vars.input.clickOptions(pegNext); });
             container.add([pegLabel,pegNumber,pegPrev,pegNext]);
             /*
@@ -426,16 +464,16 @@ var vars = {
                 ***********************
             */
             x = cC.width*0.475;
-            let forceEndPeg = scene.add.text(x,y,'RANDOM END PEG',font).setOrigin(0,0.5);
-            let originalString = `When this box is ticked the computer will select a random peg which you'll have to rebuilt the tower on.\nOnly when you've rebuilt the tower on that peg will you complete the puzzle.\n`;
-            let forceEndPegInfo = vars.phaserObjects.forceEndPegInfo = scene.add.text(cC.cX,cC.height*0.7,originalString + `Currently, the computer will ${!options.forceRandomEndPeg ? 'not ': ''}be setting the rebuild peg.`,font).setOrigin(0.5).setVisible(false);
+            let forceEndPeg = scene.add.text(x,y-125,'RANDOM END PEG',font).setOrigin(0.5);
+            let originalString = `When this box is ticked, the computer will select a random peg which you'll have to rebuilt the tower on.\nOnly when you've rebuilt the tower on that peg will you complete the puzzle.\n`;
+            let forceEndPegInfo = vars.phaserObjects.forceEndPegInfo = scene.add.text(cC.cX,cC.height*0.75,originalString + `Currently, the computer will ${!options.forceRandomEndPeg ? 'not ': ''}be setting the rebuild peg.`,font).setLineSpacing(lineSpacing).setColor('#666666').setOrigin(0.5).setVisible(false);
             forceEndPegInfo.originalString = originalString;
-            x = cC.width*0.65;
             let tickBox = scene.add.image(x,y,texture,'tickBox').setName(`tickBox`).setInteractive();
             let tickIcon = scene.add.image(x,y,texture,'tickIcon').setVisible(options.forceRandomEndPeg);
             tickBox.on('pointerdown', ()=> {
                 vars.audio.playSound('buttonClick');
                 options.forceRandomEndPeg=!options.forceRandomEndPeg;
+                vars.localStorage.saveOptions();
                 tickIcon.setVisible(options.forceRandomEndPeg);
                 forceEndPegInfo.setText(forceEndPegInfo.originalString + `Currently, the computer will ${!options.forceRandomEndPeg ? 'not ': ''}be setting the rebuild peg.`);
             });

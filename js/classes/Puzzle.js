@@ -5,6 +5,7 @@ let Puzzle = class {
         let options = vars.game.options;
         
         // init pieces vars
+        this.colourfulPieces = vars.game.options.colourfulPieces;
         this.piecesCount = clamp(options.pieces||3,3,9);
         this.pieces = [];
         this.floatingPiece = null;
@@ -59,8 +60,7 @@ let Puzzle = class {
         this.initPegs();
         this.initBase();
 
-        //this.initPieceColours();
-        this.initNewPieces();
+        this.initPieces();
 
         this.createFireworks();
 
@@ -117,7 +117,7 @@ let Puzzle = class {
         this.container.add([this.movesCountText, this.timerLabel, this.timerText, this.movesBest, this.timeBest]);
 
         this.container.setPosition(xPadding,consts.canvas.height-250);
-        this.piecesContainer.y-=450-200;
+        this.piecesContainer.y-=450-200+4;
         this.piecesContainer.x=xPadding;
     }
     initPegs() {
@@ -160,19 +160,7 @@ let Puzzle = class {
             this.pegObjects.push(image);
         });
     }
-    initPieceColours() {
-        // generating hues fgor pieces
-        let lower = 1; let upper = 241;
-        let mod = (upper-lower)/(this.piecesCount-1);
-        this.hues = [];
-        for (let p=0; p<this.piecesCount; p++) { this.hues.push(lower+p*mod); };
-    }
-    initNewPieces() {
-        // NEW PIECES COLOURS
-        let hsv = Phaser.Display.Color.HSVColorWheel();
-        let maxHue=270;
-        hsv = hsv.splice(0,maxHue);
-
+    initPieces() {
         let height = 160;
         let hMod = 16;
         let pieces = this.piecesCount;
@@ -187,14 +175,30 @@ let Puzzle = class {
             height-=hMod*div;
         };
         
-        let tintInc = maxHue/(totalParts-1)|0;
-        let hsvArray = [];
-        hsv.forEach((_h,_i)=> {
-            _i%tintInc<1 && (hsvArray.push(_h.color));
-        });
-        hsv = hsvArray;
-        hsvArray=null;
-        
+        // NEW PIECES COLOURS
+        let hsv = [];
+        if (this.colourfulPieces) {
+            hsv = Phaser.Display.Color.HSVColorWheel();
+            let maxHue=270;
+            hsv = hsv.splice(0,maxHue);
+            let tintInc = maxHue/(totalParts-1)|0;
+            let hsvArray = [];
+            hsv.forEach((_h,_i)=> {
+                _i%tintInc<1 && (hsvArray.push(_h.color));
+            });
+            hsv = hsvArray;
+            hsvArray=null;
+        } else {
+            let angleInc = 30;
+            for (let h=0; h<=(pieces-1)*angleInc; h+=angleInc) {
+                let pH = pieceHeights[h/angleInc];
+                pH.colour = h;
+                let hsvs = this.generateSingleColourHSVs(pH.parts,h);
+                hsv = [...hsv,...hsvs];
+                pH.hsvs = hsvs;
+            };
+        };
+
         let minWidth = 100;
         let maxWidth = 500;
         let wMod = (maxWidth - minWidth)/(pieces-1);
@@ -209,9 +213,14 @@ let Puzzle = class {
             let h = pieceHeights[p].height;
             
             let parts = pieceHeights[p].parts;
-            let hsvs = hsv.splice(0,parts);
+            let hsvs;
             
-            let piece = this.generateNewStylePiece(w, h, hsvs);
+            // we now have two options for pieces
+            // they can be a hsv rainbow as usual
+            // or a single colour with lightness modified
+            let piece;
+            hsvs = hsv.splice(0,parts);
+            piece = this.generateNewStylePiece(w, h, hsvs);
             piece.generateTexture(key, w, h);
             piece.clear().destroy();
 
@@ -275,6 +284,22 @@ let Puzzle = class {
         
         return graphics;
     }
+    generateSingleColourHSVs(_parts,_h) {
+        let parts=_parts;
+        let lMin = 25;
+        let lMax = 75;
+        let lMod = (lMax-lMin)/(parts-1);
+        let l = lMin;
+        let colourList = [];
+        for (let a=0; a<parts; a++) {
+            let colour = Phaser.Display.Color.HSLToColor(_h/360,0.5,l/100);
+            //console.log(`piece: ${_p} part ${a} l=${l}. Colour: ${colour.color}`);
+            colourList.push(colour.color);
+            l+=lMod;
+        };
+
+        return colourList;
+    }
     /* 
       **************************
       *                        *
@@ -301,7 +326,7 @@ let Puzzle = class {
         // disable input
         let enableInput = this.enableInput;
         enableInput(false);
-        let opts = _moveToY===this.liftY ? [125,''] : [500,'Bounce'];
+        let opts = _moveToY===this.liftY ? [125,''] : [250,'Bounce'];
         // and tween
         this.moveTweenY = scene.tweens.add({
             targets: piece,

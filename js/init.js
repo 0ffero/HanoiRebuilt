@@ -1,5 +1,4 @@
-if (vars.DEBUG===true) { console.log('Initialising...'); }
-
+vars.DEBUG && console.log('Initialising...');
 var config = {
     title: vars.name,
     type: Phaser.CANVAS,
@@ -65,5 +64,5 @@ function create() {
     // fade out the loading screen
     let pO = vars.phaserObjects;
     let lS = pO.loadingScreen;
-    scene.tweens.add({ targets: lS, delay: 2000, duration: 1500, alpha: 0, onComplete: ()=> { lS.destroy(); vars.input.enabled=true; delete(pO.loadingScreen); } });
+    scene.tweens.add({ targets: lS, delay: 1000, duration: 500, alpha: 0, onComplete: ()=> { lS.destroy(); vars.input.enabled=true; delete(pO.loadingScreen); } });
 }
