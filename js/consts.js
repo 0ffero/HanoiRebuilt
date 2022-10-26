@@ -12,7 +12,8 @@ const consts = {
         perfect         : 35,
         winScreen       : 40,
         options         : 50,
-        loadingScreen   : 100
+        loadingScreen   : 100,
+        requirements    : 110
     },
 
     mouse: {

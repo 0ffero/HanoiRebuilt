@@ -3,7 +3,7 @@ var vars = {
     DEBUG: false,
     name: 'HanoiRebuilt',
 
-    version: 1.11,
+    version: 1.2,
 
     TODO: [ ],
 
@@ -254,6 +254,11 @@ var vars = {
                     return;
                 };
 
+                if (name==='rec_browser_icon') {
+                    vars.UI.requirements.showMoreInfo(gameObject);
+                    return;
+                };
+
             });
 
             scene.input.on('gameobjectout', function (pointer, gameObject) {
@@ -264,6 +269,10 @@ var vars = {
                 };
                 if (name==='tickCBox') {
                     vars.phaserObjects.useColourful.setVisible(false);
+                    return;
+                };
+                if (name==='rec_browser_icon') {
+                    vars.UI.requirements.hideMoreInfo();
                     return;
                 };
             });
@@ -282,7 +291,13 @@ var vars = {
             if (name.startsWith('piece_')) {
                 puzzle.clickPiece(_gameObject);
                 return;
-            }
+            };
+
+            if (name==='requirements' || name==='rec_browser_icon') {
+                let UI = vars.UI;
+                UI.requirements.destroy();
+                delete(UI.requirements);
+            };
         },
 
         clickOptions(_button) {
@@ -343,6 +358,7 @@ var vars = {
     phaserObjects: {},
 
     UI: {
+        requirements: null,
 
         init: ()=> {
             vars.DEBUG ? console.log(`FN: ui > init`) : null;
@@ -357,6 +373,8 @@ var vars = {
 
             UI.initNewGameScreen();
             UI.initWinScreen();
+
+            UI.initRequirements();
         },
         initNewGameScreen() {
             let cC = consts.canvas;
@@ -495,7 +513,9 @@ var vars = {
             cert.tween = scene.tweens.add({ targets: cert, alpha: 1, delay: 10000, duration: 1000, yoyo: true, loop: true });
             container.add(cert);
         },
-
+        initRequirements() {
+            vars.UI.requirements = new Requirements({firefox: {valid: false, reason: 'This game runs at 1440p (2560x1440). Every browser except firefox is happy with this.\nExpect a lot of stuttering in the NEW GAME screen.'}});
+        },
         initWavyMessage: (_msg,_yPos=null)=> {
             if (_yPos===null) return 'Unable to generate message as no y position was passed!';
 

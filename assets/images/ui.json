@@ -31,27 +31,6 @@
 					}
 				},
 				{
-					"filename": "perfectScore",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 1020,
-						"h": 404
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 1020,
-						"h": 404
-					},
-					"frame": {
-						"x": 2,
-						"y": 1086,
-						"w": 1020,
-						"h": 404
-					}
-				},
-				{
 					"filename": "stack",
 					"rotated": false,
 					"trimmed": false,
@@ -66,10 +45,31 @@
 						"h": 853
 					},
 					"frame": {
-						"x": 1026,
+						"x": 2,
 						"y": 1086,
 						"w": 628,
 						"h": 853
+					}
+				},
+				{
+					"filename": "perfectScore",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 1020,
+						"h": 404
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 1020,
+						"h": 404
+					},
+					"frame": {
+						"x": 634,
+						"y": 1086,
+						"w": 1020,
+						"h": 404
 					}
 				},
 				{
@@ -94,6 +94,90 @@
 					}
 				},
 				{
+					"filename": "chrome",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 100,
+						"h": 100
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 100,
+						"h": 100
+					},
+					"frame": {
+						"x": 1658,
+						"y": 1331,
+						"w": 100,
+						"h": 100
+					}
+				},
+				{
+					"filename": "edge",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 100,
+						"h": 100
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 100,
+						"h": 100
+					},
+					"frame": {
+						"x": 1762,
+						"y": 1331,
+						"w": 100,
+						"h": 100
+					}
+				},
+				{
+					"filename": "opera",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 100,
+						"h": 100
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 100,
+						"h": 100
+					},
+					"frame": {
+						"x": 1658,
+						"y": 1435,
+						"w": 100,
+						"h": 100
+					}
+				},
+				{
+					"filename": "firefox",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 96,
+						"h": 100
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 96,
+						"h": 100
+					},
+					"frame": {
+						"x": 1762,
+						"y": 1435,
+						"w": 96,
+						"h": 100
+					}
+				},
+				{
 					"filename": "newGame",
 					"rotated": false,
 					"trimmed": false,
@@ -108,8 +192,8 @@
 						"h": 88
 					},
 					"frame": {
-						"x": 1658,
-						"y": 1331,
+						"x": 1862,
+						"y": 1435,
 						"w": 47,
 						"h": 88
 					}
