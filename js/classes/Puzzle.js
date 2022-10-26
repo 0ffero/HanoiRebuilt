@@ -95,11 +95,18 @@ let Puzzle = class {
         this.container.add(image);
 
         // new game button
-        let newGame = scene.add.image(width-50,height/2,'ui','newGame').setOrigin(1,0.5).setInteractive();
+        let newGame = scene.add.image(width-200,height/2,'ui','newGame').setOrigin(1,0.5).setInteractive();
         newGame.on('pointerdown', ()=> {
             vars.game.begin();
         });
         this.container.add(newGame);
+
+        // options button
+        let options = scene.add.image(width-50,height/2,'ui','options').setOrigin(1,0.5).setInteractive();
+        options.on('pointerdown', ()=> {
+            scene.containers.newGame.hide(false);
+        });
+        this.container.add(options);
 
         // add the amount of moves taken
         this.movesCountText = scene.add.text(width*0.05,65,'MOVES TAKEN SO FAR: 0', this.font).setOrigin(0,0.5);
@@ -109,10 +116,19 @@ let Puzzle = class {
         // add the bests for this level
         let bests = vars.game.best;
         let bestScore = bests.scores[this.piecesCount];
-        let bestTime =bests.times[this.piecesCount];
-        let perfect = Math.pow(2,this.piecesCount)-1===bestScore ? ' (PERFECT)':'';
-        this.movesBest = scene.add.text(width*0.4,65,`FEWEST MOVES TAKEN: ${bestScore}${perfect}`, this.font).setOrigin(0,0.5);
-        this.timeBest = scene.add.text(width*0.4,135,`FASTEST TIME: ${bestTime}s`, this.font).setOrigin(0,0.5);
+        let bestTime = bests.times[this.piecesCount];
+        let scoreMsg = 'FEWEST MOVES TAKEN: ';
+        let timeMsg = 'FASTEST TIME: ';
+        if (bestScore===99999 && bestTime===999999999) {
+            scoreMsg += 'N/A';
+            timeMsg += 'N/A';
+        } else {
+            let perfect = Math.pow(2,this.piecesCount)-1===bestScore ? '(PERFECT)':'';
+            scoreMsg += `${bestScore} ${perfect}`;
+            timeMsg += bestTime;
+        };
+        this.movesBest = scene.add.text(width*0.4,65, scoreMsg, this.font).setOrigin(0,0.5);
+        this.timeBest = scene.add.text(width*0.4,135, timeMsg, this.font).setOrigin(0,0.5);
 
         this.container.add([this.movesCountText, this.timerLabel, this.timerText, this.movesBest, this.timeBest]);
 

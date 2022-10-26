@@ -178,6 +178,27 @@
 					}
 				},
 				{
+					"filename": "options",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 88,
+						"h": 88
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 88,
+						"h": 88
+					},
+					"frame": {
+						"x": 634,
+						"y": 1494,
+						"w": 88,
+						"h": 88
+					}
+				},
+				{
 					"filename": "newGame",
 					"rotated": false,
 					"trimmed": false,

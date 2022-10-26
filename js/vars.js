@@ -3,7 +3,7 @@ var vars = {
     DEBUG: false,
     name: 'HanoiRebuilt',
 
-    version: 1.2,
+    version: 1.21,
 
     TODO: [ ],
 
